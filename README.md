@@ -1,4 +1,4 @@
-# Baileys - Typescript/Javascript WhatsApp Web API
+# Baileys - JavaScript 
 
 aturan :
 1. mengheningkan cipta
@@ -7,7 +7,7 @@ aturan :
 4. dzikir
 5. ibadah
 
-# bailey kontpl ini uda support tag sw read mention sw dll
+bailey kontpl ini uda support tag sw read mention sw dll
 code? cari tau sendiri dah gede
 
 

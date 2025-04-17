@@ -1,29 +1,30 @@
 /// <reference types="node" />
-import { GetCatalogOptions, ProductCreate, ProductUpdate, SocketConfig } from '../Types';
-import { BinaryNode } from '../WABinary';
-export declare const makeBusinessSocket: (config: SocketConfig) => {
+import { UserFacingSocketConfig } from '../Types';
+declare const makeWASocket: (config: UserFacingSocketConfig) => {
+    register: (code: string) => Promise<import("./registration").ExistsResponse>;
+    requestRegistrationCode: (registrationOptions?: import("./registration").RegistrationOptions | undefined) => Promise<import("./registration").ExistsResponse>;
     logger: import("pino").Logger<import("pino").LoggerOptions>;
     getOrderDetails: (orderId: string, tokenBase64: string) => Promise<import("../Types").OrderDetails>;
-    getCatalog: ({ jid, limit, cursor }: GetCatalogOptions) => Promise<{
+    getCatalog: ({ jid, limit, cursor }: import("../Types").GetCatalogOptions) => Promise<{
         products: import("../Types").Product[];
         nextPageCursor: string | undefined;
     }>;
-    getCollections: (jid?: string, limit?: number) => Promise<{
+    getCollections: (jid?: string | undefined, limit?: number) => Promise<{
         collections: import("../Types").CatalogCollection[];
     }>;
-    productCreate: (create: ProductCreate) => Promise<import("../Types").Product>;
+    productCreate: (create: import("../Types").ProductCreate) => Promise<import("../Types").Product>;
     productDelete: (productIds: string[]) => Promise<{
         deleted: number;
     }>;
-    productUpdate: (productId: string, update: ProductUpdate) => Promise<import("../Types").Product>;
-    sendMessageAck: ({ tag, attrs, content }: BinaryNode) => Promise<void>;
-    sendRetryRequest: (node: BinaryNode, forceIncludeKeys?: boolean) => Promise<void>;
+    productUpdate: (productId: string, update: import("../Types").ProductUpdate) => Promise<import("../Types").Product>;
+    sendMessageAck: ({ tag, attrs, content }: import("../index").BinaryNode) => Promise<void>;
+    sendRetryRequest: (node: import("../index").BinaryNode, forceIncludeKeys?: boolean) => Promise<void>;
     offerCall: (toJid: string, isVideo?: boolean) => Promise<{
         id: string;
         to: string;
     }>;
     rejectCall: (callId: string, callFrom: string) => Promise<void>;
-    getPrivacyTokens: (jids: string[]) => Promise<BinaryNode>;
+    getPrivacyTokens: (jids: string[]) => Promise<import("../index").BinaryNode>;
     assertSessions: (jids: string[], force: boolean) => Promise<boolean>;
     relayMessage: (jid: string, message: import("../Types").WAProto.IMessage, { messageId: msgId, participant, additionalAttributes, additionalNodes, useUserDevicesCache, cachedGroupMetadata, statusJidList }: import("../Types").MessageRelayOptions) => Promise<string>;
     sendReceipt: (jid: string, participant: string | undefined, messageIds: string[], type: import("../Types").MessageReceiptType) => Promise<void>;
@@ -33,11 +34,11 @@ export declare const makeBusinessSocket: (config: SocketConfig) => {
     };
     readMessages: (keys: import("../Types").WAProto.IMessageKey[]) => Promise<void>;
     refreshMediaConn: (forceGet?: boolean) => Promise<import("../Types").MediaConnInfo>;
-    getUSyncDevices: (jids: string[], useCache: boolean, ignoreZeroDevices: boolean) => Promise<import("../WABinary").JidWithDevice[]>;
+    getUSyncDevices: (jids: string[], useCache: boolean, ignoreZeroDevices: boolean) => Promise<import("../index").JidWithDevice[]>;
     createParticipantNodes: (jids: string[], message: import("../Types").WAProto.IMessage, extraAttrs?: {
         [key: string]: string;
     } | undefined) => Promise<{
-        nodes: BinaryNode[];
+        nodes: import("../index").BinaryNode[];
         shouldIncludeDeviceIdentity: boolean;
     }>;
     waUploadToServer: import("../Types").WAMediaUploadFunction;
@@ -82,7 +83,7 @@ export declare const makeBusinessSocket: (config: SocketConfig) => {
     groupParticipantsUpdate: (jid: string, participants: string[], action: import("../Types").ParticipantAction) => Promise<{
         status: string;
         jid: string;
-        content: BinaryNode;
+        content: import("../index").BinaryNode;
     }[]>;
     groupUpdateDescription: (jid: string, description?: string | undefined) => Promise<void>;
     groupInviteCode: (jid: string) => Promise<string | undefined>;
@@ -154,11 +155,11 @@ export declare const makeBusinessSocket: (config: SocketConfig) => {
     signalRepository: import("../Types").SignalRepository;
     user: import("../Types").Contact | undefined;
     generateMessageTag: () => string;
-    query: (node: BinaryNode, timeoutMs?: number | undefined) => Promise<BinaryNode>;
+    query: (node: import("../index").BinaryNode, timeoutMs?: number | undefined) => Promise<import("../index").BinaryNode>;
     waitForMessage: <T_2>(msgId: string, timeoutMs?: number | undefined) => Promise<T_2>;
     waitForSocketOpen: () => Promise<void>;
     sendRawMessage: (data: Uint8Array | Buffer) => Promise<void>;
-    sendNode: (frame: BinaryNode) => Promise<void>;
+    sendNode: (frame: import("../index").BinaryNode) => Promise<void>;
     logout: (msg?: string | undefined) => Promise<void>;
     end: (error: Error | undefined) => void;
     onUnexpectedError: (err: Error | import("@hapi/boom").Boom<any>, msg: string) => void;
@@ -166,5 +167,6 @@ export declare const makeBusinessSocket: (config: SocketConfig) => {
     uploadPreKeysToServerIfRequired: () => Promise<void>;
     requestPairingCode: (phoneNumber: string) => Promise<string>;
     waitForConnectionUpdate: (check: (u: Partial<import("../Types").ConnectionState>) => boolean | undefined, timeoutMs?: number | undefined) => Promise<void>;
-    sendWAMBuffer: (wamBuffer: Buffer) => Promise<BinaryNode>;
+    sendWAMBuffer: (wamBuffer: Buffer) => Promise<import("../index").BinaryNode>;
 };
+export default makeWASocket;

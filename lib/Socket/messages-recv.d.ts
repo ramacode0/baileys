@@ -1,21 +1,9 @@
 /// <reference types="node" />
-import { GetCatalogOptions, ProductCreate, ProductUpdate, SocketConfig } from '../Types';
+import { Boom } from '@hapi/boom';
+import { proto } from '../../WAProto';
+import { MessageReceiptType, MessageRelayOptions, SocketConfig } from '../Types';
 import { BinaryNode } from '../WABinary';
-export declare const makeBusinessSocket: (config: SocketConfig) => {
-    logger: import("pino").Logger<import("pino").LoggerOptions>;
-    getOrderDetails: (orderId: string, tokenBase64: string) => Promise<import("../Types").OrderDetails>;
-    getCatalog: ({ jid, limit, cursor }: GetCatalogOptions) => Promise<{
-        products: import("../Types").Product[];
-        nextPageCursor: string | undefined;
-    }>;
-    getCollections: (jid?: string, limit?: number) => Promise<{
-        collections: import("../Types").CatalogCollection[];
-    }>;
-    productCreate: (create: ProductCreate) => Promise<import("../Types").Product>;
-    productDelete: (productIds: string[]) => Promise<{
-        deleted: number;
-    }>;
-    productUpdate: (productId: string, update: ProductUpdate) => Promise<import("../Types").Product>;
+export declare const makeMessagesRecvSocket: (config: SocketConfig) => {
     sendMessageAck: ({ tag, attrs, content }: BinaryNode) => Promise<void>;
     sendRetryRequest: (node: BinaryNode, forceIncludeKeys?: boolean) => Promise<void>;
     offerCall: (toJid: string, isVideo?: boolean) => Promise<{
@@ -25,16 +13,16 @@ export declare const makeBusinessSocket: (config: SocketConfig) => {
     rejectCall: (callId: string, callFrom: string) => Promise<void>;
     getPrivacyTokens: (jids: string[]) => Promise<BinaryNode>;
     assertSessions: (jids: string[], force: boolean) => Promise<boolean>;
-    relayMessage: (jid: string, message: import("../Types").WAProto.IMessage, { messageId: msgId, participant, additionalAttributes, additionalNodes, useUserDevicesCache, cachedGroupMetadata, statusJidList }: import("../Types").MessageRelayOptions) => Promise<string>;
-    sendReceipt: (jid: string, participant: string | undefined, messageIds: string[], type: import("../Types").MessageReceiptType) => Promise<void>;
-    sendReceipts: (keys: import("../Types").WAProto.IMessageKey[], type: import("../Types").MessageReceiptType) => Promise<void>;
-    getButtonArgs: (message: import("../Types").WAProto.IMessage) => {
+    relayMessage: (jid: string, message: proto.IMessage, { messageId: msgId, participant, additionalAttributes, additionalNodes, useUserDevicesCache, cachedGroupMetadata, statusJidList }: MessageRelayOptions) => Promise<string>;
+    sendReceipt: (jid: string, participant: string | undefined, messageIds: string[], type: MessageReceiptType) => Promise<void>;
+    sendReceipts: (keys: proto.IMessageKey[], type: MessageReceiptType) => Promise<void>;
+    getButtonArgs: (message: proto.IMessage) => {
         [key: string]: string;
     };
-    readMessages: (keys: import("../Types").WAProto.IMessageKey[]) => Promise<void>;
+    readMessages: (keys: proto.IMessageKey[]) => Promise<void>;
     refreshMediaConn: (forceGet?: boolean) => Promise<import("../Types").MediaConnInfo>;
     getUSyncDevices: (jids: string[], useCache: boolean, ignoreZeroDevices: boolean) => Promise<import("../WABinary").JidWithDevice[]>;
-    createParticipantNodes: (jids: string[], message: import("../Types").WAProto.IMessage, extraAttrs?: {
+    createParticipantNodes: (jids: string[], message: proto.IMessage, extraAttrs?: {
         [key: string]: string;
     } | undefined) => Promise<{
         nodes: BinaryNode[];
@@ -44,8 +32,8 @@ export declare const makeBusinessSocket: (config: SocketConfig) => {
     fetchPrivacySettings: (force?: boolean) => Promise<{
         [_: string]: string;
     }>;
-    updateMediaMessage: (message: import("../Types").WAProto.IWebMessageInfo) => Promise<import("../Types").WAProto.IWebMessageInfo>;
-    sendMessage: (jid: string, content: import("../Types").AnyMessageContent, options?: import("../Types").MiscMessageGenerationOptions) => Promise<import("../Types").WAProto.WebMessageInfo | undefined>;
+    updateMediaMessage: (message: proto.IWebMessageInfo) => Promise<proto.IWebMessageInfo>;
+    sendMessage: (jid: string, content: import("../Types").AnyMessageContent, options?: import("../Types").MiscMessageGenerationOptions) => Promise<proto.WebMessageInfo | undefined>;
     subscribeNewsletterUpdates: (jid: string) => Promise<{
         duration: string;
     }>;
@@ -88,7 +76,7 @@ export declare const makeBusinessSocket: (config: SocketConfig) => {
     groupInviteCode: (jid: string) => Promise<string | undefined>;
     groupRevokeInvite: (jid: string) => Promise<string | undefined>;
     groupAcceptInvite: (code: string) => Promise<string | undefined>;
-    groupAcceptInviteV4: (key: string | import("../Types").WAProto.IMessageKey, inviteMessage: import("../Types").WAProto.Message.IGroupInviteMessage) => Promise<string>;
+    groupAcceptInviteV4: (key: string | proto.IMessageKey, inviteMessage: proto.Message.IGroupInviteMessage) => Promise<string>;
     groupGetInviteInfo: (code: string) => Promise<import("../Types").GroupMetadata>;
     groupToggleEphemeral: (jid: string, ephemeralExpiration: number) => Promise<void>;
     groupSettingUpdate: (jid: string, setting: "announcement" | "locked" | "not_announcement" | "unlocked") => Promise<void>;
@@ -100,7 +88,7 @@ export declare const makeBusinessSocket: (config: SocketConfig) => {
     processingMutex: {
         mutex<T>(code: () => T | Promise<T>): Promise<T>;
     };
-    upsertMessage: (msg: import("../Types").WAProto.IWebMessageInfo, type: import("../Types").MessageUpsertType) => Promise<void>;
+    upsertMessage: (msg: proto.IWebMessageInfo, type: import("../Types").MessageUpsertType) => Promise<void>;
     appPatch: (patchCreate: import("../Types").WAPatchCreate) => Promise<void>;
     sendPresenceUpdate: (type: import("../Types").WAPresence, toJid?: string | undefined) => Promise<void>;
     presenceSubscribe: (toJid: string, tcToken?: Buffer | undefined) => Promise<void>;
@@ -161,7 +149,7 @@ export declare const makeBusinessSocket: (config: SocketConfig) => {
     sendNode: (frame: BinaryNode) => Promise<void>;
     logout: (msg?: string | undefined) => Promise<void>;
     end: (error: Error | undefined) => void;
-    onUnexpectedError: (err: Error | import("@hapi/boom").Boom<any>, msg: string) => void;
+    onUnexpectedError: (err: Error | Boom<any>, msg: string) => void;
     uploadPreKeys: (count?: number) => Promise<void>;
     uploadPreKeysToServerIfRequired: () => Promise<void>;
     requestPairingCode: (phoneNumber: string) => Promise<string>;
